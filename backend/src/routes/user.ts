@@ -21,6 +21,7 @@ userRouter.post("/signup", async (c)=>{
         }
         const user = await prisma.user.create({
             data: {
+                name:body.name||null,
                 email: body.email,
                 password: hashedPassword
             }
@@ -50,6 +51,7 @@ userRouter.post("/signin", async (c)=>{
         })
         
         if(!user){
+            c.status(403)
             return c.json({error:"Email doesnt exist"})
         }
         else{

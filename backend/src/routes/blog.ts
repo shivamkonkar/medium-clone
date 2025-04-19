@@ -20,7 +20,7 @@ blogRouter.post("/" , async (c)=>{
             author_id:c.get('id')
         }
     })
-    return c.text("posted")
+    return c.json({blog})
 })
 
 blogRouter.put("/", async (c)=>{
@@ -36,19 +36,31 @@ blogRouter.put("/", async (c)=>{
             content: body.content
         }
     })
-    return c.text("updated")
+    return c.json({blog})
 })
 
 
 blogRouter.get("/bulk", async (c)=>{
     const prisma: PrismaClient = c.get('prisma')
-    const blogs = await prisma.post.findMany();
+    const blogs = await prisma.post.findMany({
+        select: {
+            title:true,
+            content:true,
+            id:true,
+            createdAt:true,
+            author: {
+                select: {
+                    name : true
+                }
+            }
+        }
+    });
     return c.json({blogs:blogs})
 })
 
 
 blogRouter.get("/:id", async (c)=>{
-    const id = c.req.param
+    const id = c.req.param("id")
     if(id === undefined){
         c.status(404)
         return c.json({error:"Undefined id"})
@@ -57,15 +69,26 @@ blogRouter.get("/:id", async (c)=>{
     const blog = await prisma.post.findUnique({
         where:{
             id:String(id)
+        },
+        select:{
+            title:true,
+            content:true,
+            id:true,
+            createdAt:true,
+            author: {
+                select: {
+                    name : true
+                }
+            }
         }
     })
 
     if(!blog){
         c.status(404)
-        return c.json({error:"Blog not found"})
+        return c.json({error:blog})
     }
 
-    return c.text("hello")
+    return c.json({blog})
 })
 
 

@@ -3,8 +3,11 @@ import userRouter from './routes/user'
 import blogRouter from './routes/blog'
 import Env from './types/env'
 import prismamiddleware from './middleware/prisma'
+import { cors } from 'hono/cors' 
 
 const app = new Hono<Env>() 
+
+app.use('/*',cors())
 
 app.use(prismamiddleware)
 
